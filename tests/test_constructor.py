@@ -12,7 +12,7 @@ class TestConstructor:
         sauce_tab = wait.until(EC.presence_of_element_located(ConstructorLocators.SAUCES_TAB))
         driver.execute_script("arguments[0].click();", sauce_tab)
         
-        assert wait.until(EC.presence_of_element_located(ConstructorLocators.SAUCES_TAB))
+        assert "tab_type_current" in sauce_tab.get_attribute("class")
 
     # Вкладка Начинки
     def test_go_to_fillings_section(self, driver):

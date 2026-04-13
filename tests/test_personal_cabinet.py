@@ -24,34 +24,53 @@ class TestPersonalCabinet:
 
 
     # Переход по клику на Конструктор и логотип Stellar Burgers 
-    def test_full_navigation_path(self, driver):
-        driver.maximize_window()
+
+    # Вспомогательный метод для логина
+    def login(self, driver, wait):
         driver.get("https://stellarburgers.education-services.ru/login")
-        
-        wait = WebDriverWait(driver, 15)
         wait.until(EC.visibility_of_element_located(LoginLocators.EMAIL_INPUT)).send_keys("ksenia_kozyreva_43_127@yandex.ru")
         driver.find_element(*LoginLocators.PASSWORD_INPUT).send_keys("pass1234")
         driver.find_element(*LoginLocators.LOGIN_BUTTON_ON_LOGIN_PAGE).click()
-        
         wait.until(EC.url_to_be("https://stellarburgers.education-services.ru/"))
+
+    # ТЕСТ 1: Переход из личного кабинета в Конструктор
+    def test_go_to_constructor_from_profile(self, driver):
+        wait = WebDriverWait(driver, 15)
+        self.login(driver, wait) # Вызываем логин
+        
+        # Переходим в личный кабинет
         acc_btn = wait.until(EC.element_to_be_clickable(PersonalCabinetLocators.ACCOUNT_BUTTON))
         driver.execute_script("arguments[0].click();", acc_btn)
-        
         wait.until(EC.url_contains("/account/profile"))
+        
+        # Кликаем на "Конструктор"
         const_btn = wait.until(EC.element_to_be_clickable(PersonalCabinetLocators.CONSTRUCTOR_BUTTON))
         driver.execute_script("arguments[0].click();", const_btn)
         
-        wait.until(EC.url_to_be("https://stellarburgers.education-services.ru/"))
-        acc_btn_back = wait.until(EC.element_to_be_clickable(PersonalCabinetLocators.ACCOUNT_BUTTON))
-        driver.execute_script("arguments[0].click();", acc_btn_back)
-        
-        wait.until(EC.url_contains("/account/profile"))
-        logo_btn = wait.until(EC.element_to_be_clickable(PersonalCabinetLocators.LOGO))
-        driver.execute_script("arguments[0].click();", logo_btn)
-        
+        # Проверка
         wait.until(EC.url_to_be("https://stellarburgers.education-services.ru/"))
         assert driver.current_url == "https://stellarburgers.education-services.ru/"
 
+    # ТЕСТ 2: Переход из личного кабинета по клику на Логотип
+    def test_go_to_main_page_via_logo(self, driver):
+        wait = WebDriverWait(driver, 15)
+        self.login(driver, wait) # Снова логинимся (тесты должны быть независимы)
+        
+        # Переходим в личный кабинет
+        acc_btn = wait.until(EC.element_to_be_clickable(PersonalCabinetLocators.ACCOUNT_BUTTON))
+        driver.execute_script("arguments[0].click();", acc_btn)
+        wait.until(EC.url_contains("/account/profile"))
+        
+        # Кликаем на Логотип
+        logo_btn = wait.until(EC.element_to_be_clickable(PersonalCabinetLocators.LOGO))
+        driver.execute_script("arguments[0].click();", logo_btn)
+        
+        # Проверка
+        wait.until(EC.url_to_be("https://stellarburgers.education-services.ru/"))
+        assert driver.current_url == "https://stellarburgers.education-services.ru/"
+
+        
+       
     
         # Выход из аккаунта
     def test_logout_from_personal_cabinet(self, driver):
