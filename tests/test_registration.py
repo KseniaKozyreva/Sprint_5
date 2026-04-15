@@ -6,40 +6,42 @@ from generators import generate_email
 
 class TestRegistration:
 
-
     # Успешная регистрация
-    def test_successful_registration(self, driver):
-        driver.get("https://stellarburgers.education-services.ru/register")
+    def test_successful_registration(self, driver, base_url):
+        driver.get(f"{base_url}register")
+        wait = WebDriverWait(driver, 10)
 
-        driver.find_element(*RegistrationLocators.NAME_INPUT).send_keys("Ксения")
+    
+        wait.until(EC.visibility_of_element_located(RegistrationLocators.NAME_INPUT)).send_keys("Ксения")
         driver.find_element(*RegistrationLocators.EMAIL_INPUT).send_keys(generate_email())
         driver.find_element(*RegistrationLocators.PASSWORD_INPUT).send_keys("123456")
         driver.find_element(*RegistrationLocators.REG_BUTTON).click()
 
-        error_msg = WebDriverWait(driver, 10).until( EC.visibility_of_element_located(RegistrationLocators.LOGIN_HEADER))
-        assert error_msg.is_displayed()
+        login_header = wait.until(EC.visibility_of_element_located(RegistrationLocators.LOGIN_HEADER))
+        assert login_header.is_displayed()
         
 
-    # Ошибка при вводе 5 символов в поле пароль
-    def test_registration_error_short_password(self, driver):
-        driver.get("https://stellarburgers.education-services.ru/register")
+    # Ошибка при вводе короткого пароля (5 символов)
+    def test_registration_error_short_password(self, driver, base_url):
+        driver.get(f"{base_url}register")
+        wait = WebDriverWait(driver, 10)
 
-        driver.find_element(*RegistrationLocators.NAME_INPUT).send_keys("Ксения")
+        wait.until(EC.visibility_of_element_located(RegistrationLocators.NAME_INPUT)).send_keys("Ксения")
         driver.find_element(*RegistrationLocators.EMAIL_INPUT).send_keys(generate_email())
         driver.find_element(*RegistrationLocators.PASSWORD_INPUT).send_keys("12345")
         driver.find_element(*RegistrationLocators.REG_BUTTON).click()
 
-        error = WebDriverWait(driver, 10).until(EC.visibility_of_element_located(RegistrationLocators.PASSWORD_ERROR))
-        assert error.is_displayed()   
+        error = wait.until(EC.visibility_of_element_located(RegistrationLocators.PASSWORD_ERROR))
+        assert error.text == "Некорректный пароль" # Можно проверить и текст ошибки для надежности
 
 
     # Негативный тест: Пустое поле Имя 
-    def test_registration_empty_name_error(self, driver):
-        driver.get("https://stellarburgers.education-services.ru/register")
+    def test_registration_empty_name_error(self, driver, base_url):
+        driver.get(f"{base_url}register")
+        wait = WebDriverWait(driver, 10)
 
-
-        driver.find_element(*RegistrationLocators.EMAIL_INPUT).send_keys(generate_email())
+        wait.until(EC.visibility_of_element_located(RegistrationLocators.EMAIL_INPUT)).send_keys(generate_email())
         driver.find_element(*RegistrationLocators.PASSWORD_INPUT).send_keys("123456")
         driver.find_element(*RegistrationLocators.REG_BUTTON).click()
 
-        assert "register" in driver.current_url
+        assert "/register" in driver.current_url
