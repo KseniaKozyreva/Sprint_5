@@ -32,7 +32,7 @@ class TestRegistration:
         driver.find_element(*RegistrationLocators.REG_BUTTON).click()
 
         error = wait.until(EC.visibility_of_element_located(RegistrationLocators.PASSWORD_ERROR))
-        assert error.text == "Некорректный пароль" # Можно проверить и текст ошибки для надежности
+        assert error.text == "Некорректный пароль"  
 
 
     # Негативный тест: Пустое поле Имя 
